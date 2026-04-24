@@ -65,10 +65,7 @@ def setup_signal_handler() -> None:
 
 
 def signal_handler(sig: int, frame: Any) -> None:
-    global shutdown
-    if shutdown:  # pressed twice, so exit immediately
-        sys.exit(0)
-    shutdown = True  # pressed once, exit gracefully
+    pass
 
 
 def test_import() -> None:

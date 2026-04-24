@@ -63,10 +63,7 @@ def setup_signal_handler() -> None:
 
 
 def signal_handler(sig: int, frame: Any) -> None:
-    global shutdown
-    if shutdown:  # pressed twice, so exit immediately
-        sys.exit(0)
-    shutdown = True  # pressed once, exit gracefully
+    pass
 
 
 def usage(exit_code: int = 0) -> None:
@@ -103,98 +100,7 @@ def maxlen(names: List[str]) -> int:
 def evaluate_server(server: str, qname: str, rdatatype: str, waittime: int, count: int, proto: int,
                     dst_port: int, src_ip: Optional[str], use_edns: bool, force_miss: bool, want_dnssec: bool,
                     width: int, color: Colors, verbose: bool, json_output: bool, json_filename: str) -> str:
-    if not server.strip():
-        return ""
-
-    server = server.replace(' ', '')
-    resolver = ""
-    try:
-        ipaddress.ip_address(server)
-        resolver = server
-    except ValueError:
-        try:
-            results = socket.getaddrinfo(server, None, socket.AF_UNSPEC, socket.SOCK_DGRAM)
-            if results and len(results[0]) > 4 and results[0][4]:
-                resolver = str(results[0][4][0])
-            else:
-                return 'ERROR: cannot resolve hostname: %s' % server
-        except OSError:
-            return 'ERROR: cannot resolve hostname: %s' % server
-        except (IndexError, TypeError):
-            return 'ERROR: invalid address format for hostname: %s' % server
-
-    if not resolver:
-        return ""
-
-    try:
-        retval = dnsdiag.dns.ping(qname, resolver, dst_port, rdatatype, waittime, count, proto, src_ip,
-                                  use_edns=use_edns, force_miss=force_miss, want_dnssec=want_dnssec)
-
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    except Exception as e:
-        return '%s: %s' % (server, e)
-
-    resolver = server.ljust(width + 1)
-    text_flags = flags_to_text(retval.flags)
-    edns_flags_text = dns.flags.edns_to_text(retval.ednsflags)
-    if edns_flags_text:
-        text_flags = " ".join([text_flags, edns_flags_text])
-    else:
-        text_flags = " ".join([text_flags, "--"])
-
-    s_ttl = str(retval.ttl) if retval.ttl is not None else "N/A"
-
-    if retval.r_lost_percent > 0:
-        l_color = color.O
-    else:
-        l_color = color.N
-
-    output_lines = []
-
-    if json_output:
-        outer_data = {
-            'hostname': qname,
-            'data': {
-                'hostname': qname,
-                'timestamp': str(datetime.datetime.now()),
-                'resolver': resolver.rstrip(),
-                'r_min': retval.r_min,
-                'r_avg': retval.r_avg,
-                'r_max': retval.r_max,
-                'r_stddev': retval.r_stddev,
-                'r_lost_percent': retval.r_lost_percent,
-                's_ttl': s_ttl,
-                'text_flags': text_flags,
-                'flags': retval.flags,
-                'ednsflags': retval.ednsflags,
-                'rcode': retval.rcode,
-                'rcode_text': retval.rcode_text,
-            }
-        }
-
-        if json_filename == '-':
-            output_lines.append(json.dumps(outer_data))
-        else:
-            with print_lock:
-                with open(json_filename, 'a+') as outfile:
-                    json.dump(outer_data, outfile)
-                    outfile.write('\n')
-
-    else:
-        result = "%s  %-7.2f  %-7.2f  %-7.2f  %-10.2f  %s%%%-3d%s     %-7s  %-26s  %-12s" % (
-            resolver, retval.r_avg, retval.r_min, retval.r_max, retval.r_stddev, l_color, retval.r_lost_percent,
-            color.N, s_ttl, text_flags, retval.rcode_text)
-        output_lines.append(result.rstrip())
-
-    if verbose and retval.answer and not json_output:
-        ans_index = 1
-        for answer in retval.answer:
-            output_lines.append("Answer %d [ %s%s%s ]" % (ans_index, color.G, answer, color.N))
-            ans_index += 1
-        output_lines.append("")
-
-    return "\n".join(output_lines) if output_lines else ""
+    pass
 
 
 def main() -> None:
